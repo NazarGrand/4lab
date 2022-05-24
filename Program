@@ -1,0 +1,308 @@
+
+Imports System.IO
+
+Public Class Student
+
+    Public Property Surname As String
+
+    Public Property Post As String
+
+    Public Property Gender As String
+
+    Public Property DateWord As Date
+
+    Public Property Salary As Integer
+
+End Class
+Module Module1
+
+    Sub FieldsEmpty(student As Student)
+        If (student.Surname = "") Then
+            Throw New System.Exception("Surname is empty")
+        End If
+        If (student.Post = "") Then
+            Throw New System.Exception("Post is empty")
+        End If
+        If (student.Gender = "") Then
+            Throw New System.Exception("Gender is empty")
+        End If
+        If (student.Salary <= 0) Then
+            Throw New System.Exception("Post is empty")
+        End If
+    End Sub
+
+    Sub FileRead(students As List(Of Student))
+        Try
+
+            Dim Exc As Object
+            Dim fin As String
+            Exc = CreateObject("Excel.Application")
+            Exc.Workbooks.Open("D:\Visual Basic 4 lab\ConsoleApp1\MyBook.xlsx").Activate()
+            fin = Exc.Cells(1, 1).value
+
+            Dim i As Integer = 1
+            Dim j As Integer = 1
+            While (fin IsNot Nothing)
+
+                If (students.Count <> 0) Then
+                    fin = Exc.Cells(i, j).value
+                End If
+
+                If fin = "" Then
+                    Exit While
+                End If
+
+                Dim iterator As New Student
+                iterator.Surname = fin
+
+                j += 1
+                fin = Exc.Cells(i, j).value
+                iterator.Post = fin
+
+                j += 1
+                fin = Exc.Cells(i, j).value
+                iterator.Gender = fin
+
+                j += 1
+                fin = Exc.Cells(i, j).value
+                iterator.DateWord = CDate(fin)
+
+                j += 1
+                fin = Exc.Cells(i, j).value
+                iterator.Salary = CInt(fin)
+
+                FieldsEmpty(iterator)
+                students.Add(iterator)
+
+                i += 1
+                j = 1
+            End While
+
+        Catch ex As Exception
+
+        End Try
+    End Sub
+
+    Sub Empty(students As List(Of Student))
+        If (students.Count = 0) Then
+            Throw New System.Exception("list is empty")
+        End If
+
+    End Sub
+
+    Sub Empty(students As IEnumerable(Of Student))
+        If (students.Count = 0) Then
+            Throw New System.Exception("list is empty")
+        End If
+
+    End Sub
+
+    Sub PrintTable(students As List(Of Student))
+        Try
+            Empty(students)
+
+            Dim text As String
+
+            text = String.Format("| {0, -14} | {1, -13} | {2, -6} | {3, -18} | {4, -8} |",
+            "Surname", "Post", "Gender", "DateWord", "Salary")
+            Console.WriteLine(text)
+
+            text = ""
+
+            For i = 0 To 36 Step 1
+                text += "- "
+            Next i
+
+            Console.WriteLine(text)
+
+            For i = 0 To students.Count - 1 Step 1
+                text = String.Format("| {0, -14} | {1, -13} | {2, -6} | {3, -18} | {4, -8} |",
+                                 students.Item(i).Surname,
+                                 students.Item(i).Post,
+                                 students.Item(i).Gender,
+                                 students.Item(i).DateWord,
+                                 students.Item(i).Salary)
+                Console.WriteLine(text)
+            Next i
+
+            text = ""
+
+            For i = 0 To 36 Step 1
+                text += "- "
+            Next i
+
+            Console.WriteLine(text)
+        Catch ex As Exception
+            Console.WriteLine(ex.Message)
+        End Try
+    End Sub
+
+    Sub PrintTable(students As IEnumerable(Of Student))
+        Try
+            Empty(students)
+
+            Dim text As String
+            text = String.Format("| {0, -14} | {1, -13} | {2, -6} | {3, -18} | {4, -8} |",
+            "Surname", "Post", "Gender", "DateWord", "Salary")
+            Console.WriteLine(text)
+
+            text = ""
+
+            For i = 0 To 36 Step 1
+                text += "- "
+            Next i
+
+            Console.WriteLine(text)
+
+            For Each iterator In students
+                text = String.Format("| {0, -14} | {1, -13} | {2, -6} | {3, -18} | {4, -8} |",
+                                 iterator.Surname,
+                                 iterator.Post,
+                                 iterator.Gender,
+                                 iterator.DateWord,
+                                 iterator.Salary)
+                Console.WriteLine(text)
+            Next
+
+            text = ""
+
+            For i = 0 To 36 Step 1
+                text += "- "
+            Next i
+
+            Console.WriteLine(text)
+        Catch ex As Exception
+            Console.WriteLine(ex.Message)
+        End Try
+    End Sub
+
+    Sub AddNewElement(students As List(Of Student))
+        Try
+            Dim iterator As New Student
+            Console.WriteLine("Input Surname: ")
+            iterator.Surname = Console.ReadLine()
+            Console.WriteLine("Input Post: ")
+            iterator.Post = Console.ReadLine()
+            Console.WriteLine("Input Gender: ")
+            iterator.Gender = Console.ReadLine()
+            Console.WriteLine("Input Date: ")
+            iterator.DateWord = CDate(Console.ReadLine())
+            Console.WriteLine("Input Salary: ")
+            iterator.Salary = CInt(Console.ReadLine())
+            FieldsEmpty(iterator)
+            students.Add(iterator)
+
+        Catch ex As Exception
+            Console.WriteLine(ex.Message)
+        End Try
+    End Sub
+
+    Function highestsalary(students As List(Of Student)) As IEnumerable(Of Student)
+        Try
+            Empty(students)
+            highestsalary = From iterator In students
+                            Order By iterator.Salary
+                            Where iterator.Salary >= 30000
+                            Select iterator
+
+            ' Dim Exc As Object
+            ' Exc = CreateObject("Excel.Application")
+            ' Exc.Workbooks.Open("D:\Visual Basic 4 lab\ConsoleApp1\Result.xlsx").Activate()
+
+
+            Dim file1 As String = “D:\Visual Basic 4 lab\ConsoleApp1\result.txt"
+
+            Using writeres As New StreamWriter(file1, False, System.Text.Encoding.UTF8)
+
+                For Each iterator In highestsalary
+                    writeres.WriteLine(iterator.Surname)
+                Next
+            End Using
+        Catch ex As Exception
+            Console.WriteLine(ex.Message)
+        End Try
+    End Function
+
+    Sub SumaPost(students As List(Of Student))
+        Try
+            Empty(students)
+
+            Dim maspost As String()
+            ReDim Preserve maspost(students.Count + 1)
+            Dim number As Integer = 0
+
+            For Each item In students
+                maspost(number) = item.Post
+                number += 1
+            Next
+
+            Dim posts As String()
+            ReDim posts(1)
+            posts(0) = maspost(0)
+            Dim k As Integer = 0
+            Dim FLAG As Integer = 0
+
+            For i = 1 To number - 1 Step 1
+                FLAG = 0
+                For j = 0 To k Step 1
+                    If (maspost(i) = posts(j)) Then
+                        FLAG = 1
+                    End If
+                Next
+                If (FLAG = 0) Then
+                    k += 1
+                    ReDim Preserve posts(k)
+                    posts(k) = maspost(i)
+                End If
+            Next
+
+            Dim salarypost As String()
+            ReDim salarypost(k)
+
+            For i = 0 To k Step 1
+                salarypost(i) = 0
+                For Each iterator In students
+                    If (iterator.Post = posts(i)) Then
+                        salarypost(i) += iterator.Salary
+                    End If
+                Next
+
+            Next
+
+            For i = 0 To k Step 1
+                Console.Write(posts(i) + "  ")
+                Console.WriteLine(salarypost(i))
+            Next
+
+        Catch ex As Exception
+            Console.WriteLine(ex.Message)
+        End Try
+    End Sub
+
+
+
+    Sub Main()
+
+        Dim students As New List(Of Student)
+
+        FileRead(students)
+        PrintTable(students)
+
+        Console.WriteLine()
+        Console.WriteLine("Function to add new element:")
+        AddNewElement(students)
+        Console.WriteLine()
+        PrintTable(students)
+
+        Console.WriteLine()
+        Console.WriteLine("Salary >= 30000")
+        PrintTable(highestsalary(students))
+
+        Console.WriteLine()
+        SumaPost(students)
+
+        Console.ReadLine()
+
+    End Sub
+
+End Module
